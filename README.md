@@ -31,3 +31,6 @@ Ensure you have Python installed. It is recommended to use `miniconda` or `conda
 - streamlit_with_groq.py: Streamlit app modified by me.
 - streamlit_groq_only.py: Streamlit app that I host on Streamlit Cloud Community with secret.toml (not require API Key)
 - requirements.txt: Lists all Python dependencies required for the project.
+
+## Try without Installation from StreamlitCloud Community!
+https://daffachatbot.streamlit.app/
