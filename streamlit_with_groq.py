@@ -6,13 +6,14 @@ import google.genai as genai
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
-    "Chatbot sederhana yang dapat membantu menjawab pertanyaan Anda menggunakan berbagai model bahasa."
-    "Pilih penyedia di bawah ini dan berikan kunci API yang sesuai. "
+    "Simple chatbot that supports multiple LLM providers: OpenAI, Groq, and Gemini. "
+    "Choose your provider and enter the corresponding API key to get started."
 )    
     
-st.write("[WARNING] Maaf saat ini hanya mendukung penyedia Groq. ")
-st.write("Kami mendukung penggunaan bahasa Indonesia")
-st.write("DaffaWiratama - 2025 (Bagian dari pengembangan Streamlit)")
+st.write("Get your OpenAI API key [here](https://platform.openai.com/account/api-keys).")
+st.write("Get your Groq API key [here](https://console.groq.com/keys).")
+st.write("Get your Gemini API key [here](https://aistudio.google.com/app/api-keys).")
+st.write("DaffaWiratama - 2025")
 # Choose provider
 provider = st.selectbox("Provider", ["OpenAI", "Groq", "Gemini"])
 
@@ -153,22 +154,28 @@ def call_gemini(api_key: str, messages: list, model: str) -> str:
 
     return response.text
 
+# ------------------------------
+# Session State Initialization
+# ------------------------------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+# Display previous messages
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+
 
 # ------------------------------
 # Chat UI
 # ------------------------------
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
 if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
+
+    response = "" #Initialize response variable
 
     if provider == "OpenAI":
         try:
@@ -181,12 +188,11 @@ if prompt := st.chat_input("What is up?"):
             st.error("OpenAI request failed. Verify your API key and model.")
             with st.expander("OpenAI error details"):
                 st.text(str(e))
-            response = ""
         else:
             with st.chat_message("assistant"):
                 response = st.write_stream(stream)
-
-    else:
+    
+    elif provider == "Groq":
         try:
             response = call_groq(
                 groq_api_key,
@@ -195,12 +201,30 @@ if prompt := st.chat_input("What is up?"):
                 base_url=groq_base_url,
             )
         except Exception as e:
-            st.error("Groq request failed.")
+            st.error("Groq request failed. Verify your API key and model.")
             with st.expander("Groq error details"):
                 st.text(str(e))
-            response = ""
-
+        
         with st.chat_message("assistant"):
             st.markdown(response)
 
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    elif provider == "Gemini": 
+        try:
+            response = call_gemini(
+                gemini_api_key,
+                st.session_state.messages,
+                model=gemini_model,
+            )
+        except Exception as e:
+            st.error("Gemini request failed. Verify your API key and model.")
+            with st.expander("Gemini error details"):
+                st.text(str(e))
+        
+        with st.chat_message("assistant"):
+            st.markdown(response)
+    
+    else:
+        st.error(f"Provider tidak didukung: {provider}")
+
+    if response: 
+        st.session_state.messages.append({"role": "assistant", "content": response})
