@@ -27,6 +27,7 @@ Ensure you have Python installed. It is recommended to use `miniconda` or `conda
    
 ## Code Structure
 
-- streamlit_app.py: The main Streamlit template file, containing the chatbot UI and logic.
+- streamlit_app.py: Default Streamlit template file, provided by Streamlit.
 - streamlit_with_groq.py: Streamlit app modified by me.
+- streamlit_groq_only.py: Streamlit app that I host on Streamlit Cloud Community with secret.toml (not require API Key)
 - requirements.txt: Lists all Python dependencies required for the project.
